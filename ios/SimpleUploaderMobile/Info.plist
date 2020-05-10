@@ -75,5 +75,9 @@
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
 	</array>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+  <string>Necessary to browse and select images and videos to upload.</string>
+
 </dict>
 </plist>

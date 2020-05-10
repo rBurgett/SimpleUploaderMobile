@@ -13,6 +13,7 @@ import Settings from './components/settings';
 import { colors, localStorageKeys } from './constants';
 import { handleError } from './util';
 import { setCredentials } from './actions/app-actions';
+import PermissionsController from './modules/permissions';
 
 const combinedReducers = combineReducers({
   appState: appReducer
@@ -32,6 +33,8 @@ const App = () => {
   useEffect(() => {
     (async function() {
       try {
+
+        await PermissionsController.checkAndRequestPermissions();
 
         const s3Bucket = await AsyncStorage.getItem(localStorageKeys.S3_BUCKET);
         const accessKeyId = await AsyncStorage.getItem(localStorageKeys.ACCESS_KEY_ID);
