@@ -1,7 +1,10 @@
 export const colors = {
   BACKGROUND: '#262830',
   TEXT: '#fff',
-  PRIMARY: '#1a98c6'
+  PRIMARY: '#1a98c6',
+  SUCCESS: '#1BC98E',
+  WARNING: '#E4D836',
+  DANGER: '#E64759'
 };
 
 export const appActions = {

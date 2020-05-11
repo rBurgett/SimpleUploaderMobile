@@ -36,10 +36,10 @@ const App = () => {
 
         await PermissionsController.checkAndRequestPermissions();
 
-        const s3Bucket = await AsyncStorage.getItem(localStorageKeys.S3_BUCKET);
-        const accessKeyId = await AsyncStorage.getItem(localStorageKeys.ACCESS_KEY_ID);
-        const secretAccessKey = await AsyncStorage.getItem(localStorageKeys.SECRET_ACCESS_KEY);
-        const region = await AsyncStorage.getItem(localStorageKeys.REGION);
+        const s3Bucket = await AsyncStorage.getItem(localStorageKeys.S3_BUCKET) || '';
+        const accessKeyId = await AsyncStorage.getItem(localStorageKeys.ACCESS_KEY_ID) || '';
+        const secretAccessKey = await AsyncStorage.getItem(localStorageKeys.SECRET_ACCESS_KEY) || '';
+        const region = await AsyncStorage.getItem(localStorageKeys.REGION) || '';
 
         store.dispatch(setCredentials({
           s3Bucket,

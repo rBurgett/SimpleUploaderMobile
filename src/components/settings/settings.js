@@ -1,7 +1,7 @@
 import React, { forwardRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View } from 'react-native';
-import { Button, Content, Form, Item, Label, Input, Text } from 'native-base';
+import { Button, Content, Form, Item, Label, Input, Text, Toast } from 'native-base';
 import Color from 'color';
 import omit from 'lodash/omit';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -41,11 +41,17 @@ const Settings = ({ savedS3Bucket, savedAccessKeyId, savedSecretAccessKey, saved
   const onSave = async function() {
     try {
       await AsyncStorage.multiSet([
-        [localStorageKeys.S3_BUCKET, s3Bucket],
-        [localStorageKeys.ACCESS_KEY_ID, accessKeyId],
-        [localStorageKeys.SECRET_ACCESS_KEY, secretAccessKey],
-        [localStorageKeys.REGION, region]
+        [localStorageKeys.S3_BUCKET, s3Bucket.trim()],
+        [localStorageKeys.ACCESS_KEY_ID, accessKeyId.trim()],
+        [localStorageKeys.SECRET_ACCESS_KEY, secretAccessKey.trim()],
+        [localStorageKeys.REGION, region.trim()]
       ]);
+      Toast.show({
+        text: 'Credentials successfully saved!',
+        duration: 1500,
+        position: 'top',
+        type: 'success'
+      });
     } catch(err) {
       handleError(err);
     }
@@ -57,7 +63,7 @@ const Settings = ({ savedS3Bucket, savedAccessKeyId, savedSecretAccessKey, saved
     });
   };
 
-  const disableSave = !s3Bucket || !accessKeyId || !secretAccessKey || !region;
+  // const disableSave = !s3Bucket || !accessKeyId || !secretAccessKey || !region;
 
   return (
     <Container>
@@ -81,6 +87,7 @@ const Settings = ({ savedS3Bucket, savedAccessKeyId, savedSecretAccessKey, saved
               ref={input => inputs.secretAccessKey = input}
               blurOnSubmit={true}
               returnKeyType={'next'}
+              secureTextEntry={true}
               onSubmitEditing={ () => setFocus('region')}
               label={'Secret Access Key'} value={secretAccessKey} onChangeText={val => setSecretAccessKey(val)} />
             <TextInput
@@ -90,9 +97,12 @@ const Settings = ({ savedS3Bucket, savedAccessKeyId, savedSecretAccessKey, saved
               label={'Region'} value={region} onChangeText={val => setRegion(val)} />
           </Form>
         </Content>
-        <Button disabled={disableSave} style={[styles.button, disableSave ? {opacity: .6} : {}]} onPress={onSave}>
+        <Button style={styles.button} onPress={onSave} full>
           <Text style={styles.buttonText}>Save Credentials</Text>
         </Button>
+        {/*<Button disabled={disableSave} style={[styles.button, disableSave ? {opacity: .6} : {}]} onPress={onSave}>*/}
+        {/*  <Text style={styles.buttonText}>Save Credentials</Text>*/}
+        {/*</Button>*/}
       </View>
     </Container>
   );

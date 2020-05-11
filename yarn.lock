@@ -4638,10 +4638,9 @@ native-base-shoutem-theme@0.3.1:
     lodash "^4.17.14"
     prop-types "^15.5.10"
 
-native-base@^2.13.12:
+"native-base@git://github.com/GeekyAnts/NativeBase.git#5c190746544293aa9c434c4831771f7e17043317":
   version "2.13.12"
-  resolved "https://registry.yarnpkg.com/native-base/-/native-base-2.13.12.tgz#06020b46019964ddaef3a646ec07e72008018efc"
-  integrity sha512-LdKGNXisbmQ0vDHG86McZKIFTlRyo+OQdJpqmQ05Yf7CGlMbBykJZCFe9rdiee5pLq20xiChe/jXbzFdWcysrg==
+  resolved "git://github.com/GeekyAnts/NativeBase.git#5c190746544293aa9c434c4831771f7e17043317"
   dependencies:
     blueimp-md5 "^2.5.0"
     clamp "^1.0.1"
@@ -4659,7 +4658,6 @@ native-base@^2.13.12:
     react-native-easy-grid "0.2.2"
     react-native-keyboard-aware-scroll-view "0.9.1"
     react-native-vector-icons "^6.6.0"
-    react-timer-mixin "^0.13.4"
     react-tween-state "^0.1.5"
     tween-functions "^1.0.1"
 
@@ -5259,6 +5257,11 @@ react-is@^16.12.0, react-is@^16.13.0, react-is@^16.7.0, react-is@^16.8.1, react-
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-native-document-picker@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-document-picker/-/react-native-document-picker-3.4.0.tgz#7bbd110b8474a3322ac3178ec5446e2df64c8339"
+  integrity sha512-YdjiiElDdvOj55IDPNJ0kxXxzDRWyDymV/iYZJt34ueRWWFLIff+DymSjBc0QljrIFv7pODws2lo81+5Y0ww0w==
+
 react-native-drawer@2.5.1:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/react-native-drawer/-/react-native-drawer-2.5.1.tgz#08b9314184f48c724f1b467f8859797369798654"
@@ -5283,6 +5286,11 @@ react-native-gesture-handler@^1.6.1:
     hoist-non-react-statics "^2.3.1"
     invariant "^2.2.4"
     prop-types "^15.7.2"
+
+react-native-image-crop-picker@^0.31.1:
+  version "0.31.1"
+  resolved "https://registry.yarnpkg.com/react-native-image-crop-picker/-/react-native-image-crop-picker-0.31.1.tgz#b56248a9e31d62f1c6e7c2f85d296869c32af4cd"
+  integrity sha512-I5z7DcTKYYASevIalkqKdiw9Fe4CVCKPVMMkLGDVGUYgZZWlbOS9G1+oNWtWwoB5S9e931GkDrZ/HL5UhADG/Q==
 
 react-native-iphone-x-helper@^1.0.3, react-native-iphone-x-helper@^1.2.1:
   version "1.2.1"
@@ -5390,11 +5398,6 @@ react-test-renderer@16.11.0:
     prop-types "^15.6.2"
     react-is "^16.8.6"
     scheduler "^0.17.0"
-
-react-timer-mixin@^0.13.4:
-  version "0.13.4"
-  resolved "https://registry.yarnpkg.com/react-timer-mixin/-/react-timer-mixin-0.13.4.tgz#75a00c3c94c13abe29b43d63b4c65a88fc8264d3"
-  integrity sha512-4+ow23tp/Tv7hBM5Az5/Be/eKKF7DIvJ09voz5LyHGQaqqz9WV8YMs31eFvcYQs7d451LSg7kDJV70XYN/Ug/Q==
 
 react-tween-state@^0.1.5:
   version "0.1.5"
