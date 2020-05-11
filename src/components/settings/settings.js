@@ -9,6 +9,7 @@ import Container from '../shared/container';
 import PageHeading from '../shared/page-heading';
 import { colors, localStorageKeys } from '../../constants';
 import { handleError } from '../../util';
+import Platform from '../../modules/platform';
 
 const TextInput = forwardRef((props,ref)  => {
   const { label } = props;
@@ -87,7 +88,7 @@ const Settings = ({ savedS3Bucket, savedAccessKeyId, savedSecretAccessKey, saved
               ref={input => inputs.secretAccessKey = input}
               blurOnSubmit={true}
               returnKeyType={'next'}
-              secureTextEntry={true}
+              secureTextEntry={Platform.isIOS() ? true : false}
               onSubmitEditing={ () => setFocus('region')}
               label={'Secret Access Key'} value={secretAccessKey} onChangeText={val => setSecretAccessKey(val)} />
             <TextInput

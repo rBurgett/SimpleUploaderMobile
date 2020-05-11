@@ -6,7 +6,7 @@ import { colors } from '../../constants';
 const Container = ({ children }) => {
   return (
     <SafeAreaView style={styles.safeAreaView}>
-      <StatusBar barStyle={'light-content'} />
+      <StatusBar barStyle={'light-content'} backgroundColor={colors.BACKGROUND} />
       {children}
     </SafeAreaView>
   );

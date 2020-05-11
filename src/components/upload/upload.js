@@ -243,7 +243,8 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   staticText: {
-    color: colors.TEXT
+    color: colors.TEXT,
+    textAlign: 'center'
   }
 });
 
