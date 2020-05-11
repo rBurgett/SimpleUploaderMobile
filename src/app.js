@@ -15,6 +15,7 @@ import { handleError } from './util';
 import { setCredentials, setUploads } from './actions/app-actions';
 import PermissionsController from './modules/permissions';
 import UploadType from './types/upload';
+import SplashScreen from 'react-native-splash-screen';
 
 const combinedReducers = combineReducers({
   appState: appReducer
@@ -51,6 +52,8 @@ const App = () => {
         }));
 
         store.dispatch(setUploads(JSON.parse(uploads).map(u => new UploadType(u))));
+
+        SplashScreen.hide();
 
       } catch(err) {
         handleError(err);
