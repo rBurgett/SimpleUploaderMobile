@@ -12,18 +12,19 @@ import Files from './components/files';
 import Settings from './components/settings';
 import { colors, localStorageKeys } from './constants';
 import { handleError } from './util';
-import { setCredentials } from './actions/app-actions';
+import { setCredentials, setUploads } from './actions/app-actions';
 import PermissionsController from './modules/permissions';
+import UploadType from './types/upload';
 
 const combinedReducers = combineReducers({
   appState: appReducer
 });
 
 const store = createStore(combinedReducers);
-store.subscribe(() => {
-  const state = store.getState();
-  console.log('state', state.appState);
-});
+// store.subscribe(() => {
+//   const state = store.getState();
+//   console.log('state', state.appState);
+// });
 
 const Tab = createBottomTabNavigator();
 
@@ -40,6 +41,7 @@ const App = () => {
         const accessKeyId = await AsyncStorage.getItem(localStorageKeys.ACCESS_KEY_ID) || '';
         const secretAccessKey = await AsyncStorage.getItem(localStorageKeys.SECRET_ACCESS_KEY) || '';
         const region = await AsyncStorage.getItem(localStorageKeys.REGION) || '';
+        const uploads = await AsyncStorage.getItem(localStorageKeys.UPLOADS) || '[]';
 
         store.dispatch(setCredentials({
           s3Bucket,
@@ -47,6 +49,8 @@ const App = () => {
           secretAccessKey,
           region
         }));
+
+        store.dispatch(setUploads(JSON.parse(uploads).map(u => new UploadType(u))));
 
       } catch(err) {
         handleError(err);

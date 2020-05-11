@@ -11,16 +11,20 @@
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.10.0",
+    "@react-native-community/clipboard": "^1.2.2",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-navigation/bottom-tabs": "^5.4.1",
     "@react-navigation/native": "^5.2.6",
+    "aws-sdk": "^2.673.0",
     "color": "^3.1.2",
     "lodash": "^4.17.15",
     "native-base": "git://github.com/GeekyAnts/NativeBase.git#5c190746544293aa9c434c4831771f7e17043317",
     "react": "16.11.0",
     "react-native": "0.62.2",
+    "react-native-aws3": "https://github.com/rBurgett/react-native-aws3.git",
     "react-native-document-picker": "^3.4.0",
     "react-native-gesture-handler": "^1.6.1",
+    "react-native-heic-converter": "^1.3.0",
     "react-native-image-crop-picker": "^0.31.1",
     "react-native-permissions": "^2.1.4",
     "react-native-reanimated": "^1.8.0",
@@ -28,7 +32,8 @@
     "react-native-screens": "^2.7.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
-    "rn-fetch-blob": "^0.12.0"
+    "rn-fetch-blob": "^0.12.0",
+    "uuid": "^2.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

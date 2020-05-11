@@ -4,7 +4,11 @@ const getInitialState = () => ({
   s3Bucket: '',
   accessKeyId: '',
   secretAccessKey: '',
-  region: ''
+  region: '',
+  uploads: [],
+  uploading: false,
+  compressing: false,
+  uploadPercent: 0
 });
 
 export default (state = getInitialState(), { type, payload }) => {
@@ -16,6 +20,26 @@ export default (state = getInitialState(), { type, payload }) => {
         accessKeyId: payload.accessKeyId,
         secretAccessKey: payload.secretAccessKey,
         region: payload.region
+      };
+    case appActions.SET_UPLOADS:
+      return {
+        ...state,
+        uploads: payload
+      };
+    case appActions.SET_UPLOADING:
+      return {
+        ...state,
+        uploading: payload
+      };
+    case appActions.SET_COMPRESSING:
+      return {
+        ...state,
+        compressing: payload
+      };
+    case appActions.SET_UPLOAD_PERCENT:
+      return {
+        ...state,
+        uploadPercent: payload
       };
     default:
       return state;

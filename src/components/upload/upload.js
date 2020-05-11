@@ -1,24 +1,35 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Icon, Text } from 'native-base';
+import Clipboard from '@react-native-community/clipboard';
+import { H2, Icon, Text } from 'native-base';
+import AsyncStorage from '@react-native-community/async-storage';
 import DocumentPicker from 'react-native-document-picker';
 import ImagePicker from 'react-native-image-crop-picker';
+import { RNS3 } from 'react-native-aws3';
+import uuid from 'uuid';
 import Container from '../shared/container';
 import PageHeading from '../shared/page-heading';
-import { colors } from '../../constants';
-import { handleError } from '../../util';
+import { colors, localStorageKeys } from '../../constants';
+import { getDownloadLink, handleError } from '../../util';
 import path from '../../modules/path';
+import UploadType from '../../types/upload';
+// import AWS from 'aws-sdk/dist/aws-sdk-react-native';
+// import RNFetchBlob from 'rn-fetch-blob';
 
-const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region }) => {
+const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, compressing, uploadPercent, uploads, setUploads, setUploading, setCompressing, setUploadPercent }) => {
 
   const disabled = !s3Bucket || !accessKeyId || !secretAccessKey || !region;
 
   const uploadFiles = async function(files) {
     try {
       if(files.length === 1) {
-        const { uri } = files[0];
-        const name = path.basename(uri);
+        const f = files[0];
+        const { uri, type } = f;
+        const ext = path.extname(uri);
+        const initialExt = path.extname(f.name);
+        const initialExtPatt = new RegExp(initialExt.replace('.', '\\.') + '$');
+        const name = path.basename(f.name).replace(initialExtPatt, ext);
         const confirmed = await new Promise(resolve => {
           Alert.alert(
             'Confirm Upload',
@@ -36,7 +47,45 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region }) => {
             ]
           );
         });
-        console.log('Confirmed', confirmed);
+        if(!confirmed) return;
+        setUploading(true);
+        const fileToUpload = uri;
+        const prefix = uuid.v4() + '/';
+        const params = {
+          keyPrefix: prefix,
+          bucket: s3Bucket,
+          region,
+          accessKey: accessKeyId,
+          secretKey: secretAccessKey,
+          acl: 'public-read'
+        };
+        const promise =  RNS3.put({
+          uri: fileToUpload,
+          type,
+          name
+        }, params);
+        promise.progress(({ loaded, total }) => {
+          setUploadPercent(loaded / total);
+        });
+        await promise;
+        const key = prefix + name;
+        const upload = new UploadType({
+          key,
+          date: new Date().getTime()
+        });
+        const newUploads = [
+          ...uploads,
+          upload
+        ];
+        await AsyncStorage.setItem(localStorageKeys.UPLOADS, JSON.stringify(newUploads));
+        setUploads(newUploads);
+        const link = getDownloadLink(s3Bucket, key);
+        Clipboard.setString(link);
+        await Alert.alert(
+          'Upload Complete!',
+          'Download link copied to clipboard.'
+        );
+        setUploading(false);
       } else {
         const confirmed = await new Promise(resolve => {
           Alert.alert(
@@ -55,7 +104,7 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region }) => {
             ]
           );
         });
-        console.log('Confirmed', confirmed);
+        // console.log('Confirmed', confirmed);
         // for(let i = 0; i < files.length; i++) {
         //   const { uri } = files[i];
         //   const name = path.basename(uri);
@@ -63,6 +112,9 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region }) => {
         // }
       }
     } catch(err) {
+      setUploading(false);
+      setCompressing(false);
+      setUploadPercent(0);
       handleError(err);
     }
   };
@@ -79,7 +131,8 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region }) => {
               const results = await DocumentPicker.pickMultiple({
                 type: [DocumentPicker.types.allFiles]
               });
-              uploadFiles(results.map(f => ({ uri: f.uri })));
+              // console.log(JSON.stringify(results, null, '  '));
+              uploadFiles(results.map(f => ({name: f.name, uri: f.uri, type: f.type})));
             } catch(err) {
               // handleError(err);
             }
@@ -92,8 +145,10 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region }) => {
               const results = await ImagePicker.openPicker({
                 multiple: true,
                 maxFiles: 200
+                // writeTempFile: false
               });
-              uploadFiles(results.map(f => ({ uri: f.path })));
+              // console.log(JSON.stringify(results, null, '  '));
+              uploadFiles(results.map(f => ({name: f.filename, uri: f.path, type: f.mime})));
             } catch(err) {
               // handleError(err);
             }
@@ -130,10 +185,21 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region }) => {
             <Text style={styles.staticText}>You must go to settings and add credentials before you can upload.</Text>
           </View>
           :
-          <TouchableOpacity style={styles.touchableOpacity} onPress={onPress}>
-            <Icon name={'folder-open'} style={styles.icon} />
-            <Text style={styles.text}>Select one or more files to upload</Text>
-          </TouchableOpacity>
+          uploading ?
+            <View style={styles.staticTextContainer}>
+              <H2 style={styles.staticText}>Uploading</H2>
+              <H2 style={styles.staticText}>{`${(uploadPercent * 100).toFixed()}%`}</H2>
+            </View>
+            :
+            compressing ?
+              <View style={styles.staticTextContainer}>
+                <Text style={styles.staticText}>You must go to settings and add credentials before you can upload.</Text>
+              </View>
+              :
+              <TouchableOpacity style={styles.touchableOpacity} onPress={onPress}>
+                <Icon name={'folder-open'} style={styles.icon} />
+                <Text style={styles.text}>Select one or more files to upload</Text>
+              </TouchableOpacity>
         }
       </View>
     </Container>
@@ -143,7 +209,15 @@ Upload.propTypes = {
   s3Bucket: PropTypes.string,
   accessKeyId: PropTypes.string,
   secretAccessKey: PropTypes.string,
-  region: PropTypes.string
+  region: PropTypes.string,
+  uploading: PropTypes.bool,
+  compressing: PropTypes.bool,
+  uploadPercent: PropTypes.number,
+  uploads: PropTypes.arrayOf(PropTypes.instanceOf(UploadType)),
+  setUploads: PropTypes.func,
+  setUploading: PropTypes.func,
+  setCompressing: PropTypes.func,
+  setUploadPercent: PropTypes.func
 };
 
 const styles = StyleSheet.create({
