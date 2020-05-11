@@ -8,7 +8,8 @@ const getInitialState = () => ({
   uploads: [],
   uploading: false,
   compressing: false,
-  uploadPercent: 0
+  uploadPercent: 0,
+  compressPercent: 0
 });
 
 export default (state = getInitialState(), { type, payload }) => {
@@ -40,6 +41,11 @@ export default (state = getInitialState(), { type, payload }) => {
       return {
         ...state,
         uploadPercent: payload
+      };
+    case appActions.SET_COMPRESS_PERCENT:
+      return {
+        ...state,
+        compressPercent: payload
       };
     default:
       return state;

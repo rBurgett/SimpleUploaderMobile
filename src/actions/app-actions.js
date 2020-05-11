@@ -24,3 +24,8 @@ export const setUploadPercent = payload => ({
   type: appActions.SET_UPLOAD_PERCENT,
   payload
 });
+
+export const setCompressPercent = payload => ({
+  type: appActions.SET_COMPRESS_PERCENT,
+  payload
+});
