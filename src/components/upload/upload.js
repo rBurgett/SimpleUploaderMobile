@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
@@ -8,6 +8,8 @@ import DocumentPicker from 'react-native-document-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import { RNS3 } from 'react-native-aws3';
 import uuid from 'uuid';
+import RNFetchBlob from 'rn-fetch-blob';
+import { zip, subscribe } from 'react-native-zip-archive';
 import Container from '../shared/container';
 import PageHeading from '../shared/page-heading';
 import { colors, localStorageKeys } from '../../constants';
@@ -16,21 +18,34 @@ import path from '../../modules/path';
 import UploadType from '../../types/upload';
 import Platform from '../../modules/platform';
 // import AWS from 'aws-sdk/dist/aws-sdk-react-native';
-// import RNFetchBlob from 'rn-fetch-blob';
 
-const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, compressing, uploadPercent, uploads, setUploads, setUploading, setCompressing, setUploadPercent }) => {
+const { fs } = RNFetchBlob;
+
+const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, compressing, uploadPercent, compressPercent, uploads, setUploads, setUploading, setCompressing, setUploadPercent, setCompressPercent }) => {
+
+  useEffect(() => {
+    const zipProgressListener = subscribe(({ progress }) => {
+      setCompressPercent(progress);
+    });
+    return () => {
+      zipProgressListener.remove();
+    };
+  });
 
   const disabled = !s3Bucket || !accessKeyId || !secretAccessKey || !region;
 
   const uploadFiles = async function(files) {
     try {
+      let fileToUpload, name, type;
       if(files.length === 1) {
         const f = files[0];
-        const { uri, type } = f;
+        const { uri } = f;
+        fileToUpload = uri;
+        type = f.type;
         const ext = path.extname(uri);
         const initialExt = path.extname(f.name);
         const initialExtPatt = new RegExp(initialExt.replace('.', '\\.') + '$');
-        const name = path.basename(f.name).replace(initialExtPatt, ext);
+        name = path.basename(f.name).replace(initialExtPatt, ext);
         const confirmed = await new Promise(resolve => {
           Alert.alert(
             'Confirm Upload',
@@ -51,48 +66,48 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
         });
         if(!confirmed) return;
         setUploading(true);
-        const fileToUpload = uri;
-        const prefix = uuid.v4() + '/';
-        const params = {
-          keyPrefix: prefix,
-          bucket: s3Bucket,
-          region,
-          accessKey: accessKeyId,
-          secretKey: secretAccessKey,
-          acl: 'public-read'
-        };
-        const promise =  RNS3.put({
-          uri: fileToUpload,
-          type,
-          name
-        }, params);
-        promise.progress(({ loaded, total }) => {
-          setUploadPercent(loaded / total);
-        });
-        await promise;
-        const key = prefix + name;
-        const upload = new UploadType({
-          key,
-          date: new Date().getTime()
-        });
-        const newUploads = [
-          ...uploads,
-          upload
-        ];
-        await AsyncStorage.setItem(localStorageKeys.UPLOADS, JSON.stringify(newUploads));
-        setUploads(newUploads);
-        const link = getDownloadLink(s3Bucket, key);
-        Clipboard.setString(link);
-        await Alert.alert(
-          'Upload Complete!',
-          'Download link copied to clipboard.'
-        );
-        setUploading(false);
+        // const prefix = uuid.v4() + '/';
+        // const params = {
+        //   keyPrefix: prefix,
+        //   bucket: s3Bucket,
+        //   region,
+        //   accessKey: accessKeyId,
+        //   secretKey: secretAccessKey,
+        //   acl: 'public-read'
+        // };
+        // const promise =  RNS3.put({
+        //   uri: fileToUpload,
+        //   type,
+        //   name
+        // }, params);
+        // promise.progress(({ loaded, total }) => {
+        //   setUploadPercent(loaded / total);
+        // });
+        // await promise;
+        // const key = prefix + name;
+        // const upload = new UploadType({
+        //   key,
+        //   date: new Date().getTime()
+        // });
+        // const newUploads = [
+        //   ...uploads,
+        //   upload
+        // ];
+        // await AsyncStorage.setItem(localStorageKeys.UPLOADS, JSON.stringify(newUploads));
+        // setUploads(newUploads);
+        // const link = getDownloadLink(s3Bucket, key);
+        // Clipboard.setString(link);
+        // await Alert.alert(
+        //   'Upload Complete!',
+        //   'Download link copied to clipboard.'
+        // );
+        // setUploading(false);
+        // setUploadPercent(0);
       } else {
         const confirmed = await new Promise(resolve => {
           Alert.alert(
             'Confirm Upload',
-            `Would you like to upload these ${files.length} files?`,
+            `Would you like to zip and upload these ${files.length} files?`,
             [
               {
                 text: 'Cancel',
@@ -106,17 +121,76 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
             ]
           );
         });
-        // console.log('Confirmed', confirmed);
-        // for(let i = 0; i < files.length; i++) {
-        //   const { uri } = files[i];
-        //   const name = path.basename(uri);
-        //   console.log(name);
-        // }
+        if(!confirmed) return;
+        const now = new Date().getTime();
+        const tempDir = fs.dirs.CacheDir;
+        const dirPath = tempDir + '/' + now;
+        await fs.mkdir(dirPath);
+        setCompressing(true);
+        setUploading(true);
+        for(let i = 0; i < files.length; i++) {
+          const f = files[i];
+          f.uri = f.uri.replace(/^file:\/\//, '');
+          const { uri } = f;
+          const ext = path.extname(uri);
+          const initialExt = path.extname(f.name);
+          const initialExtPatt = new RegExp(initialExt.replace('.', '\\.') + '$');
+          const filename = path.basename(f.name).replace(initialExtPatt, ext);
+          f.name = filename;
+        }
+        await Promise.all(files
+          .map(f => fs.cp(f.uri, dirPath + '/' + f.name))
+        );
+        const zipPath = tempDir + '/' + now + '.zip';
+        await zip(dirPath, zipPath);
+        fileToUpload = zipPath;
+        type = 'application/zip';
+        name = path.basename(zipPath);
+        setCompressing(false);
+        setCompressPercent(0);
       }
+      const prefix = uuid.v4() + '/';
+      const params = {
+        keyPrefix: prefix,
+        bucket: s3Bucket,
+        region,
+        accessKey: accessKeyId,
+        secretKey: secretAccessKey,
+        acl: 'public-read'
+      };
+      const promise =  RNS3.put({
+        uri: fileToUpload,
+        type,
+        name
+      }, params);
+      promise.progress(({ loaded, total }) => {
+        setUploadPercent(loaded / total);
+      });
+      await promise;
+      const key = prefix + name;
+      const upload = new UploadType({
+        key,
+        date: new Date().getTime()
+      });
+      const newUploads = [
+        ...uploads,
+        upload
+      ];
+      await AsyncStorage.setItem(localStorageKeys.UPLOADS, JSON.stringify(newUploads));
+      setUploads(newUploads);
+      const link = getDownloadLink(s3Bucket, key);
+      Clipboard.setString(link);
+      await Alert.alert(
+        'Upload Complete!',
+        'Download link copied to clipboard.'
+      );
+      setUploading(false);
+      setUploadPercent(0);
     } catch(err) {
       setUploading(false);
       setCompressing(false);
       setUploadPercent(0);
+      setCompressPercent(0);
       handleError(err);
     }
   };
@@ -137,11 +211,19 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
     try {
       const results = await ImagePicker.openPicker({
         multiple: true,
-        maxFiles: 200
+        maxFiles: 200,
+        compressImageQuality: 1
         // writeTempFile: false
       });
       // console.log(JSON.stringify(results, null, '  '));
-      uploadFiles(results.map(f => ({name: f.filename || path.basename(f.path), uri: f.path, type: f.mime})));
+      uploadFiles(results.map(f => {
+        const uri = f.sourceURL || f.path;
+        return {
+          name: f.filename || path.basename(uri),
+          uri,
+          type: f.mime
+        };
+      }));
     } catch(err) {
       // handleError(err);
     }
@@ -172,15 +254,16 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
             <Text style={styles.staticText}>You must go to settings and add credentials before you can upload.</Text>
           </View>
           :
-          uploading ?
+          compressing ?
             <View style={styles.staticTextContainer}>
-              <H2 style={styles.staticText}>Uploading</H2>
-              <H2 style={styles.staticText}>{`${(uploadPercent * 100).toFixed()}%`}</H2>
+              <H2 style={styles.staticText}>Compressing</H2>
+              <H2 style={styles.staticText}>{`${(compressPercent * 100).toFixed()}%`}</H2>
             </View>
             :
-            compressing ?
+            uploading ?
               <View style={styles.staticTextContainer}>
-                <Text style={styles.staticText}>You must go to settings and add credentials before you can upload.</Text>
+                <H2 style={styles.staticText}>Uploading</H2>
+                <H2 style={styles.staticText}>{`${(uploadPercent * 100).toFixed()}%`}</H2>
               </View>
               :
               <TouchableOpacity style={styles.touchableOpacity} onPress={onPress}>
@@ -200,11 +283,13 @@ Upload.propTypes = {
   uploading: PropTypes.bool,
   compressing: PropTypes.bool,
   uploadPercent: PropTypes.number,
+  compressPercent: PropTypes.number,
   uploads: PropTypes.arrayOf(PropTypes.instanceOf(UploadType)),
   setUploads: PropTypes.func,
   setUploading: PropTypes.func,
   setCompressing: PropTypes.func,
-  setUploadPercent: PropTypes.func
+  setUploadPercent: PropTypes.func,
+  setCompressPercent: PropTypes.func
 };
 
 const styles = StyleSheet.create({
