@@ -14,6 +14,7 @@ import { colors, localStorageKeys } from '../../constants';
 import { getDownloadLink, handleError } from '../../util';
 import path from '../../modules/path';
 import UploadType from '../../types/upload';
+import Platform from '../../modules/platform';
 // import AWS from 'aws-sdk/dist/aws-sdk-react-native';
 // import RNFetchBlob from 'rn-fetch-blob';
 
@@ -44,7 +45,8 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
                 text: 'Upload',
                 onPress: () => resolve(true)
               }
-            ]
+            ],
+            {cancelable: true}
           );
         });
         if(!confirmed) return;
@@ -119,61 +121,46 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
     }
   };
 
+  const onDocumentsPress = async function() {
+    try {
+      const results = await DocumentPicker.pickMultiple({
+        type: [DocumentPicker.types.allFiles]
+      });
+      // console.log(JSON.stringify(results, null, '  '));
+      uploadFiles(results.map(f => ({name: f.name, uri: f.uri, type: f.type})));
+    } catch(err) {
+      // handleError(err);
+    }
+  };
+
+  const onPhotosPress = async function() {
+    try {
+      const results = await ImagePicker.openPicker({
+        multiple: true,
+        maxFiles: 200
+        // writeTempFile: false
+      });
+      // console.log(JSON.stringify(results, null, '  '));
+      uploadFiles(results.map(f => ({name: f.filename || path.basename(f.path), uri: f.path, type: f.mime})));
+    } catch(err) {
+      // handleError(err);
+    }
+  };
+
   const onPress = () => {
-    Alert.alert(
-      'Select File Type',
-      'Would you like to upload documents or photos/videos?',
-      [
-        {
-          text: 'Documents',
-          async onPress() {
-            try {
-              const results = await DocumentPicker.pickMultiple({
-                type: [DocumentPicker.types.allFiles]
-              });
-              // console.log(JSON.stringify(results, null, '  '));
-              uploadFiles(results.map(f => ({name: f.name, uri: f.uri, type: f.type})));
-            } catch(err) {
-              // handleError(err);
-            }
-          }
-        },
-        {
-          text: 'Photos',
-          async onPress() {
-            try {
-              const results = await ImagePicker.openPicker({
-                multiple: true,
-                maxFiles: 200
-                // writeTempFile: false
-              });
-              // console.log(JSON.stringify(results, null, '  '));
-              uploadFiles(results.map(f => ({name: f.filename, uri: f.path, type: f.mime})));
-            } catch(err) {
-              // handleError(err);
-            }
-          }
-        }
-      ],
-      {cancelable: true}
-    );
-    // try {
-    //   const images = await ImagePicker.openPicker({
-    //     multiple: true,
-    //     maxFiles: 200
-    //   });
-    //   console.log(JSON.stringify(images, null, '  '));
-    // } catch(err) {
-    //   // handleError(err);
-    // }
-    // try {
-    //   const results = await DocumentPicker.pickMultiple({
-    //     type: [DocumentPicker.types.allFiles]
-    //   });
-    //   console.log(JSON.stringify(results, null, '  '));
-    // } catch(err) {
-    //   if(!DocumentPicker.isCancel(err)) handleError(err);
-    // }
+    if(Platform.isAndroid()) { // Android
+      onDocumentsPress();
+    } else { //iOS
+      Alert.alert(
+        'Select File Type',
+        'Would you like to upload documents or photos/videos?',
+        [
+          {text: 'Documents', onPress: onDocumentsPress},
+          {text: 'Photos', onPress: onPhotosPress}
+        ],
+        {cancelable: true}
+      );
+    }
   };
 
   return (
