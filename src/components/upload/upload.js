@@ -17,7 +17,6 @@ import { getDownloadLink, handleError } from '../../util';
 import path from '../../modules/path';
 import UploadType from '../../types/upload';
 import Platform from '../../modules/platform';
-// import AWS from 'aws-sdk/dist/aws-sdk-react-native';
 
 const { fs } = RNFetchBlob;
 
@@ -66,43 +65,6 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
         });
         if(!confirmed) return;
         setUploading(true);
-        // const prefix = uuid.v4() + '/';
-        // const params = {
-        //   keyPrefix: prefix,
-        //   bucket: s3Bucket,
-        //   region,
-        //   accessKey: accessKeyId,
-        //   secretKey: secretAccessKey,
-        //   acl: 'public-read'
-        // };
-        // const promise =  RNS3.put({
-        //   uri: fileToUpload,
-        //   type,
-        //   name
-        // }, params);
-        // promise.progress(({ loaded, total }) => {
-        //   setUploadPercent(loaded / total);
-        // });
-        // await promise;
-        // const key = prefix + name;
-        // const upload = new UploadType({
-        //   key,
-        //   date: new Date().getTime()
-        // });
-        // const newUploads = [
-        //   ...uploads,
-        //   upload
-        // ];
-        // await AsyncStorage.setItem(localStorageKeys.UPLOADS, JSON.stringify(newUploads));
-        // setUploads(newUploads);
-        // const link = getDownloadLink(s3Bucket, key);
-        // Clipboard.setString(link);
-        // await Alert.alert(
-        //   'Upload Complete!',
-        //   'Download link copied to clipboard.'
-        // );
-        // setUploading(false);
-        // setUploadPercent(0);
       } else {
         const confirmed = await new Promise(resolve => {
           Alert.alert(
@@ -118,16 +80,17 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
                 text: 'Upload',
                 onPress: () => resolve(true)
               }
-            ]
+            ],
+            {cancelable: true}
           );
         });
         if(!confirmed) return;
+        setCompressing(true);
+        setUploading(true);
         const now = new Date().getTime();
         const tempDir = fs.dirs.CacheDir;
         const dirPath = tempDir + '/' + now;
         await fs.mkdir(dirPath);
-        setCompressing(true);
-        setUploading(true);
         for(let i = 0; i < files.length; i++) {
           const f = files[i];
           f.uri = f.uri.replace(/^file:\/\//, '');
