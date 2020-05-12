@@ -65,7 +65,7 @@
 		00E356F21AD99517003FC87E /* SimpleUploaderMobileTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimpleUploaderMobileTests.m; sourceTree = "<group>"; };
 		050CF040A0474CF4BC0E3BD8 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/native-base/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		11A346FDCAEA416AAA2FB52E /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/native-base/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* SimpleUploaderMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleUploaderMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* Simple S3 Uploader Mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Simple S3 Uploader Mobile.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = SimpleUploaderMobile/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = SimpleUploaderMobile/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -256,7 +256,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* SimpleUploaderMobile.app */,
+				13B07F961A680F5B00A75B9A /* Simple S3 Uploader Mobile.app */,
 				00E356EE1AD99517003FC87E /* SimpleUploaderMobileTests.xctest */,
 				2D02E47B1E0B4A5D006451C7 /* SimpleUploaderMobile-tvOS.app */,
 				2D02E4901E0B4A5D006451C7 /* SimpleUploaderMobile-tvOSTests.xctest */,
@@ -305,7 +305,7 @@
 			);
 			name = SimpleUploaderMobile;
 			productName = SimpleUploaderMobile;
-			productReference = 13B07F961A680F5B00A75B9A /* SimpleUploaderMobile.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* Simple S3 Uploader Mobile.app */;
 			productType = "com.apple.product-type.application";
 		};
 		2D02E47A1E0B4A5D006451C7 /* SimpleUploaderMobile-tvOS */ = {
@@ -362,6 +362,7 @@
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 3Y9ESB9ZLL;
 						LastSwiftMigration = 1120;
+						ProvisioningStyle = Manual;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -374,7 +375,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "SimpleUploaderMobile" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Simple S3 Uploader" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -461,7 +462,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export NODE_OPTIONS=--max_old_space_size=8192\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		12BCB2BEDFCD2C0EBDABD608 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -758,6 +759,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SimpleUploaderMobile/SimpleUploaderMobile.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3Y9ESB9ZLL;
 				ENABLE_BITCODE = NO;
@@ -772,10 +774,12 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = SimpleUploaderMobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simples3uploader.ios;
+				PRODUCT_NAME = "Simple S3 Uploader Mobile";
+				PROVISIONING_PROFILE_SPECIFIER = com.simples3uploader.ios.testing;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -787,6 +791,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SimpleUploaderMobile/SimpleUploaderMobile.entitlements;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3Y9ESB9ZLL;
 				INFOPLIST_FILE = SimpleUploaderMobile/Info.plist;
@@ -796,9 +801,11 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = SimpleUploaderMobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simples3uploader.ios;
+				PRODUCT_NAME = "Simple S3 Uploader Mobile";
+				PROVISIONING_PROFILE_SPECIFIER = com.simples3uploader.ios.testing;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -1065,7 +1072,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "SimpleUploaderMobile" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Simple S3 Uploader" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

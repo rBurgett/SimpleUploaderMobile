@@ -36,7 +36,6 @@ const App = () => {
     (async function() {
       try {
 
-        await PermissionsController.checkAndRequestPermissions();
 
         const s3Bucket = await AsyncStorage.getItem(localStorageKeys.S3_BUCKET) || '';
         const accessKeyId = await AsyncStorage.getItem(localStorageKeys.ACCESS_KEY_ID) || '';
@@ -54,6 +53,12 @@ const App = () => {
         store.dispatch(setUploads(JSON.parse(uploads).map(u => new UploadType(u))));
 
         SplashScreen.hide();
+
+        setTimeout(() => {
+          PermissionsController
+            .checkAndRequestPermissions()
+            .catch(handleError);
+        }, 500);
 
       } catch(err) {
         handleError(err);
