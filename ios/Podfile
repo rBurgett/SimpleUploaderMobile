@@ -98,12 +98,3 @@ target 'SimpleUploaderMobile' do
   pod 'Permission-PhotoLibrary', :path => "#{permissions_path}/PhotoLibrary.podspec"
 
 end
-
-target 'SimpleUploaderMobile-tvOS' do
-  # Pods for SimpleUploaderMobile-tvOS
-
-  target 'SimpleUploaderMobile-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-end
