@@ -16,6 +16,7 @@ import { setCredentials, setUploads } from './actions/app-actions';
 import PermissionsController from './modules/permissions';
 import UploadType from './types/upload';
 import SplashScreen from 'react-native-splash-screen';
+import Platform from './modules/platform';
 
 const combinedReducers = combineReducers({
   appState: appReducer
@@ -36,6 +37,9 @@ const App = () => {
     (async function() {
       try {
 
+        // On Android, check for permissions at the beginning for older versions of Android which
+        // will stall if they don't have the right permissions explicitly requested beforehand.
+        if(Platform.isAndroid()) await PermissionsController.checkAndRequestPermissions();
 
         const s3Bucket = await AsyncStorage.getItem(localStorageKeys.S3_BUCKET) || '';
         const accessKeyId = await AsyncStorage.getItem(localStorageKeys.ACCESS_KEY_ID) || '';
@@ -54,11 +58,15 @@ const App = () => {
 
         SplashScreen.hide();
 
-        setTimeout(() => {
-          PermissionsController
-            .checkAndRequestPermissions()
-            .catch(handleError);
-        }, 500);
+        // On iOS, request permissions after the splash screen is gone, because the permissions
+        // dialog will be hidden by the splash screen if we ask while it is still up
+        if(Platform.isIOS()) {
+          setTimeout(() => {
+            PermissionsController
+              .checkAndRequestPermissions()
+              .catch(handleError);
+          }, 500);
+        }
 
       } catch(err) {
         handleError(err);
