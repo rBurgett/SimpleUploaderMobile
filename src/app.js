@@ -97,7 +97,10 @@ const App = () => {
               activeTintColor: colors.TEXT,
               inactiveTintColor: colors.PRIMARY,
               activeBackgroundColor: colors.PRIMARY,
-              inactiveBackgroundColor: colors.BACKGROUND
+              inactiveBackgroundColor: colors.BACKGROUND,
+              style: {
+                backgroundColor: colors.BACKGROUND,
+              }
             }}
           >
             <Tab.Screen name="Upload" component={Upload} />
