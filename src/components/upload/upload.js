@@ -44,7 +44,7 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
         const ext = path.extname(uri);
         const initialExt = path.extname(f.name);
         const initialExtPatt = new RegExp(initialExt.replace('.', '\\.') + '$');
-        name = path.basename(f.name).replace(initialExtPatt, ext);
+        name = ext ? path.basename(f.name).replace(initialExtPatt, ext) : f.name;
         const confirmed = await new Promise(resolve => {
           Alert.alert(
             'Confirm Upload',
@@ -98,7 +98,7 @@ const Upload = ({ s3Bucket, accessKeyId, secretAccessKey, region, uploading, com
           const ext = path.extname(uri);
           const initialExt = path.extname(f.name);
           const initialExtPatt = new RegExp(initialExt.replace('.', '\\.') + '$');
-          const filename = path.basename(f.name).replace(initialExtPatt, ext);
+          const filename = ext ? path.basename(f.name).replace(initialExtPatt, ext) : f.name;
           f.name = filename;
         }
         await Promise.all(files
