@@ -17,7 +17,7 @@ const TextInput = forwardRef((props,ref)  => {
   return (
     <Item stackedLabel>
       <Label style={styles.label}>{label}</Label>
-      <Input ref={ref} style={styles.input} {...inputProps} />
+      <Input ref={ref} style={[styles.input, {height: Platform.OS == 'android' ? 60 : 50}]} {...inputProps} />
     </Item>
     );
 });
