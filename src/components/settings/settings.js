@@ -1,7 +1,8 @@
 import React, { forwardRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View } from 'react-native';
-import { Button, Content, Form, Item, Label, Input, Text, Toast } from 'native-base';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
+import { Button, Content, Form, Icon, Item, Label, Input, Text, Toast } from 'native-base';
 import Color from 'color';
 import omit from 'lodash/omit';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -12,14 +13,39 @@ import { handleError } from '../../util';
 import Platform from '../../modules/platform';
 
 const TextInput = forwardRef((props,ref)  => {
-  const { label } = props;
+  const { label, onChangeText = () => {} } = props;
   const inputProps = omit(props, ['style', 'label']);
-  return (
-    <Item stackedLabel>
-      <Label style={styles.label}>{label}</Label>
-      <Input ref={ref} style={[styles.input, {height: Platform.OS == 'android' ? 60 : 50}]} {...inputProps} />
-    </Item>
+
+  if(Platform.isIOS()) { // on iOS
+    return (
+      <Item stackedLabel>
+        <Label style={styles.iosLabel}>{label}</Label>
+        <Input ref={ref} style={styles.iosInput} {...inputProps} />
+      </Item>
     );
+  } else { // on Android
+    const onPastePress = async function() {
+      try {
+        const res = await Clipboard.getString();
+        onChangeText(res || '');
+      } catch(err) {
+        handleError(err);
+      }
+    };
+    return (
+      <View>
+        <View style={styles.androidLabelView}>
+          <Text style={styles.androidLabel}>{label}</Text>
+          <View style={styles.pasteIconContainer}>
+            <TouchableOpacity onPress={onPastePress}><Icon style={styles.pasteIcon} name={'clipboard'} /></TouchableOpacity>
+          </View>
+        </View>
+        <Item>
+          <Input ref={ref} style={styles.androidInput} {...inputProps} />
+        </Item>
+      </View>
+    );
+  }
 });
 TextInput.propTypes = {
   label: PropTypes.string,
@@ -88,7 +114,7 @@ const Settings = ({ savedS3Bucket, savedAccessKeyId, savedSecretAccessKey, saved
               ref={input => inputs.secretAccessKey = input}
               blurOnSubmit={true}
               returnKeyType={'next'}
-              secureTextEntry={Platform.isIOS() ? true : false}
+              secureTextEntry={true}
               onSubmitEditing={ () => setFocus('region')}
               label={'Secret Access Key'} value={secretAccessKey} onChangeText={val => setSecretAccessKey(val)} />
             <TextInput
@@ -125,11 +151,18 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 16
   },
-  label: {
+  iosLabel: {
     color: colors.TEXT
   },
-  input: {
+  iosInput: {
     color: Color(colors.TEXT).darken(0.4)
+  },
+  androidLabel: {
+    color: colors.TEXT
+  },
+  androidInput: {
+    color: Color(colors.TEXT).darken(0.4),
+    height: 40
   },
   button: {
     marginTop: 16,
@@ -141,6 +174,21 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff'
+  },
+  androidLabelView: {
+    marginTop: 8,
+    paddingLeft: 16,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    flexWrap: 'nowrap'
+  },
+  pasteIcon: {
+    color: colors.PRIMARY,
+    fontSize: 22
+  },
+  pasteIconContainer: {
+    paddingLeft: 10
   }
 });
 
