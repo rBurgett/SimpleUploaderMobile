@@ -18,7 +18,7 @@
     "@react-navigation/native": "^5.2.6",
     "aws-sdk": "^2.673.0",
     "color": "^3.1.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "native-base": "git://github.com/GeekyAnts/NativeBase.git#5c190746544293aa9c434c4831771f7e17043317",
     "react": "16.11.0",
     "react-native": "0.62.2",
