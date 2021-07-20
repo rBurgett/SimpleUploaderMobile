@@ -21,7 +21,7 @@
     "lodash": "^4.17.15",
     "native-base": "git://github.com/GeekyAnts/NativeBase.git#5c190746544293aa9c434c4831771f7e17043317",
     "react": "16.11.0",
-    "react-native": "0.62.2",
+    "react-native": "0.62.3",
     "react-native-aws3": "https://github.com/rBurgett/react-native-aws3.git",
     "react-native-document-picker": "^3.4.0",
     "react-native-gesture-handler": "^1.6.1",
